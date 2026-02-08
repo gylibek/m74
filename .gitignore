@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.eggs/
+dist/
+sdist/
+*.egg-info/
+MANIFEST
+
+# Install
+develop-eggs/
+.installed
+*.pth
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit tests
+.tox/
+nosetests.xml
+*/junit*.xml
+cover/
+*.coverage
+*.lcov
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx doc files
+_build/
+htmlcov/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# IDEs and editors
+.idea/
+.project
+.vscode/
+*.swp
+*.swo
+*.db
+*.sqlite
+*.DS_Store
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
