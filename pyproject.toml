@@ -37,6 +37,8 @@ use_parentheses = true
 ensure_newline_before_comments = true
 known_third_party = ["requests"]
 combine_as_imports = true
+multi_line_output = 0
+
 
 [tool.mypy]
 disallow_untyped_defs = true
