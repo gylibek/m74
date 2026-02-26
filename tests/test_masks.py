@@ -1,4 +1,5 @@
 from src import widget
+
 # Импортируем модуль
 
 

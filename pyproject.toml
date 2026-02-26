@@ -14,8 +14,6 @@ version = "0.1.0"
 description = "Банковский проект для маскировки данных"
 authors = ["Аделя <agalieva745@gmail.com>"]
 
-[tool.poetry.dependencies]
-python = "^3.14.2"
 
 [tool.poetry.group.lint.dependencies]
 flake8 = "7.3.0"
@@ -37,7 +35,6 @@ use_parentheses = true
 ensure_newline_before_comments = true
 known_third_party = ["requests"]
 combine_as_imports = true
-multi_line_output = 0
 
 
 [tool.mypy]
