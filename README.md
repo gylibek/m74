@@ -29,7 +29,7 @@ pip install -r requirements.txt
 from src.processing import filter_by_state
 transactions = [
     {'id': 41428829, 'state': 'EXECUTED', 'date': '2019-07-03T18:35:29.512364'},
-    {'id': 59402872, 'state': 'CANCELLED', 'date': '2018-09-17T21:27:25.241241'}
+    {'id': 59402872, 'state': 'CANCELED', 'date': '2018-09-17T21:27:25.241241'}
 ]
 filtered_transactions = filter_by_state(transactions)
 print(filtered_transactions)
