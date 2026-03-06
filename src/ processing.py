@@ -1,7 +1,10 @@
 from datetime import datetime
+from typing import List, Dict, Any
 
-
-def filter_by_state(data, state='EXECUTED'):
+def filter_by_state(
+    data: List[Dict[str, Any]],
+    state: str = 'EXECUTED'
+) -> List[Dict[str, Any]]:
     """
     Фильтрация данных по статусу state
 
@@ -12,7 +15,10 @@ def filter_by_state(data, state='EXECUTED'):
     return [item for item in data if item.get('state') == state]
 
 
-def sort_by_date(data, descending=True):
+def sort_by_date(
+    data: List[Dict[str, Any]],
+    descending: bool = True
+) -> List[Dict[str, Any]]:
     """
     Сортировка данных по дате
 
