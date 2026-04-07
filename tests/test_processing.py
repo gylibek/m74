@@ -4,8 +4,6 @@ from typing import Any, Dict, List
 import pytest
 from processing import filter_by_state, sort_by_date
 
-from src import processing
-
 
 # Фикстура для создания тестовых данных
 @pytest.fixture
