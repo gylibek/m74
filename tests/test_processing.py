@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 import pytest
-from processing import filter_by_state, sort_by_date
+
+from src.processing import filter_by_state, sort_by_date
 
 
 # Фикстура для создания тестовых данных
