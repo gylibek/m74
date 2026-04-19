@@ -50,6 +50,11 @@ def mask_account_card(card: str) -> str:
     return " ".join(str_card) + " " + result
 
 
+def validate_and_mask_card(card_input: str) -> str:
+    if not card_input or not any(c.isdigit() for c in card_input):
+        raise ValueError("Invalid card format: no digits found")
+
+
 def get_date(date_string: str) -> str:
     """
     Преобразует строку с датой из технического формата в читаемый (DD.MM.YYYY).
