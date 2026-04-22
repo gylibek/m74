@@ -20,7 +20,7 @@ def test_mask_account_card_account() -> None:
 def test_mask_account_card_edge_cases() -> None:
     """Тестируем крайние случаи и граничные условия"""
     # Короткий номер карты
-    assert mask_account_card("Visa 1234567890123456") == "Visa XXXX XXXX ФфффффXXX 3456"
+    assert mask_account_card("Visa 1234567890123456") == "Visa XXXX XXXX XXXX 3456"
     # Очень длинный номер счёта
     assert mask_account_card("Счет 123456789012345678901234567890") == "Счет XXXX XXXX XXXX 7890"
 
