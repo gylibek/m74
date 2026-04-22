@@ -11,7 +11,7 @@ def get_mask_card_number(card_number: str) -> str:
     # Преобразуем число в строку и дополняем нулями слева до 16 символов
     card_str = str(card_number).zfill(16)
     # Формируем маску
-    masked = f"{card_str[:3]} {card_str[3:6]}** ****"
+    masked = f"{card_str[:3]} {card_str[3:6]}XX XXXX"
     masked += f" {card_str[-3:]}"
     return masked
 
@@ -27,5 +27,5 @@ def get_mask_account(account_number: str) -> str:
         str: замаскированный номер счета
     """
     # Преобразуем число в строку и берем последние 3 цифры
-    masked = f"**{account_number[-3:]}"
+    masked = f"XX{account_number[-3:]}"
     return masked
