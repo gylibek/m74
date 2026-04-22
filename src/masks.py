@@ -27,5 +27,5 @@ def get_mask_account(account_number: str) -> str:
         str: замаскированный номер счета
     """
     # Преобразуем число в строку и берем последние 3 цифры
-    masked = f"XX{account_number[-3:]}"
+    masked = f"Xа{account_number[-3:]}"
     return masked

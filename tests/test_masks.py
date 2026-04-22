@@ -58,7 +58,7 @@ def test_get_mask_card_number_invalid() -> None:
     # Тест 4: большой номер счёта
     ("123456789012345", "XX345"),
     # Тест 5: строка вместо числа
-    ("1234567890", "XX7890"),
+    ("1234567890", "ааааааX7890"),
 ])
 def test_get_mask_account(account_input: str, expected: str) -> None:
     assert get_mask_account(account_input) == expected
