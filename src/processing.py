@@ -31,4 +31,3 @@ def sort_by_date(
         data,
         key=lambda x: datetime.strptime(x['date'], '%Y-%m-%dT%H:%M:%S.%f'),
         reverse=descending
-    )
