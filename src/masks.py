@@ -4,38 +4,66 @@ def get_mask_card_number(card_number: str) -> str:
     Формат: первые 6 цифр (часть скрыта) и последние 4 цифры.
     Пример: 1234 56XX XXXX 3456
     """
-    # Проверка на валидность (чтобы проходили тесты на ValueError)
-    if not isinstance(card_number, str) or not card_number.isdigit():
-        raise ValueError("Номер карты должен быть строкой, состоящей только из цифр")
+    # Проверка на валидность
+    if not isinstance(card_number, str):
+        raise TypeError("Номер карты должен быть строкой")
 
-    # Очищаем от лишних пробелов, если они есть
+    if not card_number:
+        raise ValueError("Номер карты не может быть пустым")
+
+    if card_number.startswith('-'):
+        raise ValueError("Номер карты не может быть отрицательным")
+
+    # Очищаем от лишних пробелов
     clean_number = card_number.replace(" ", "")
 
-    if len(clean_number) < 4:
-        raise ValueError("Номер карты слишком короткий")
+    # Проверяем, что все символы - цифры
+    if not clean_number.isdigit():
+        raise ValueError("Номер карты должен состоять только из цифр")
 
-    # Логика маски: берем первые 4, затем 2, затем скрываем середину, затем последние 4
-    first_part = clean_number[:4]
-    second_part = clean_number[4:6]
-    last_part = clean_number[-4:]
+    # Для коротких номеров дополняем нулями слева
+    if len(clean_number) < 16:
+        clean_number = clean_number.zfill(16)
 
-    return f"{first_part} {second_part}XX XXXX {last_part}"
+    # Для длинных номеров берем последние 16 цифр
+    if len(clean_number) > 16:
+        clean_number = clean_number[-16:]
+
+    # Логика маски: первые 6 цифр, последние 4 цифры
+    first_six = clean_number[:6]
+    last_four = clean_number[-4:]
+
+    # Форматируем: XXXX XX** **** XXXX
+    # 1234 56XX XXXX 3456
+    return f"{first_six[:4]} {first_six[4:6]}XX XXXX {last_four}"
 
 
 def get_mask_account(account_number: str) -> str:
     """
     Возвращает маску номера банковского счета.
-    Формат: скрываем начало, оставляем последние 4 цифры.
-    Пример: XXXX XXXX XXXX 1234
+    Формат: две звездочки и последние 4 цифры (или меньше, если счет короче).
+    Пример: **7890
     """
-    if not isinstance(account_number, str) or not account_number.isdigit():
-        raise ValueError("Номер счета должен быть строкой, состоящей только из цифр")
+    if not isinstance(account_number, str):
+        raise TypeError("Номер счета должен быть строкой")
 
+    if not account_number:
+        raise ValueError("Номер счета не может быть пустым")
+
+    if account_number.startswith('-'):
+        raise ValueError("Номер счета не может быть отрицательным")
+
+    # Очищаем от лишних пробелов
     clean_number = account_number.replace(" ", "")
 
-    if len(clean_number) < 4:
-        raise ValueError("Номер счета слишком короткий")
+    # Проверяем, что все символы - цифры
+    if not clean_number.isdigit():
+        raise ValueError("Номер счета должен состоять только из цифр")
 
-    # Берем только последние 4 цифры и добавляем маску в начале
-    last_four = clean_number[-4:]
-    return f"XXXX XXXX XXXX {last_four}"
+    # Берем последние 4 цифры (или меньше, если номер короче)
+    if len(clean_number) >= 4:
+        last_digits = clean_number[-4:]
+    else:
+        last_digits = clean_number
+
+    return f"**{last_digits}"
