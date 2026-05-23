@@ -6,24 +6,24 @@ from src.masks import get_mask_account, get_mask_card_number
 
 # Тесты для функции get_mask_card_number
 @pytest.mark.parametrize("card_input,expected", [
-    ("1234567890123456", "1234 56XX XXXX 3456"),
-    ("0012345678901234", "0012 34XX XXXX 1234"),
-    ("1234567890123456", "1234 56XX XXXX 3456"),
+    ("1234567890123456", "1234 56** **** 3456"),
+    ("0012345678901234", "0012 34** **** 1234"),
+    ("1234567890123456", "1234 56** **** 3456"),
 ])
 def test_get_mask_card_number(card_input: str, expected: str) -> None:
     assert get_mask_card_number(card_input) == expected
 
 
 @pytest.mark.parametrize("short_card,expected", [
-    ("123456789012", "0012 34XX XXXX 9012"),
-    ("1", "0000 00XX XXXX 0001"),
+    ("123456789012", "0012 34** **** 9012"),
+    ("1", "0000 00** **** 0001"),
 ])
 def test_get_mask_card_number_short(short_card: str, expected: str) -> None:
     assert get_mask_card_number(short_card) == expected
 
 
 @pytest.mark.parametrize("long_card,expected", [
-    ("12345678901234567890", "5678 90XX XXXX 8900"),
+    ("12345678901234567890", "5678 90** **** 8900"),
 ])
 def test_get_mask_card_number_long(long_card: str, expected: str) -> None:
     assert get_mask_card_number(long_card) == expected

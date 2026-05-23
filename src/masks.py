@@ -2,7 +2,7 @@ def get_mask_card_number(card_number: str) -> str:
     """
     Возвращает маску номера банковской карты.
     Формат: первые 6 цифр (часть скрыта) и последние 4 цифры.
-    Пример: 1234 56XX XXXX 3456
+    Пример: 1234 56** **** 3456
     """
     # Проверка на валидность
     if not isinstance(card_number, str):
@@ -35,7 +35,7 @@ def get_mask_card_number(card_number: str) -> str:
 
     # Форматируем: XXXX XX** **** XXXX
     # 1234 56XX XXXX 3456
-    return f"{first_six[:4]} {first_six[4:6]}XX XXXX {last_four}"
+    return f"{first_six[:4]} {first_six[4:6]}** **** {last_four}"
 
 
 def get_mask_account(account_number: str) -> str:
