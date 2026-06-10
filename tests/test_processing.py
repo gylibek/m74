@@ -1,61 +1,69 @@
-# src/processing.py
-from datetime import datetime
+# tests/test_processing.py
 from typing import Any, Dict, List
+from src.processing import filter_by_state, sort_by_date
 
 
-def filter_by_state(transactions: List[Dict[str, Any]], state: str = 'EXECUTED') -> List[Dict[str, Any]]:
-    """
-    Фильтрует список транзакций по заданному состоянию.
+def test_filter_by_state() -> None:
+    transactions: List[Dict[str, Any]] = [
+        {'state': 'EXECUTED', 'amount': 100},
+        {'state': 'PENDING', 'amount': 200},
+        {'state': 'EXECUTED', 'amount': 300},
+    ]
 
-    Args:
-        transactions: Список словарей с транзакциями
-        state: Состояние для фильтрации (по умолчанию 'EXECUTED')
-
-    Returns:
-        Отфильтрованный список транзакций
-    """
-    return [item for item in transactions if item.get('state') == state]
+    result = filter_by_state(transactions)
+    assert len(result) == 2
+    assert all(item['state'] == 'EXECUTED' for item in result)
 
 
-def sort_by_date(transactions: List[Dict[str, Any]], descending: bool = True) -> List[Dict[str, Any]]:
-    """
-    Сортирует список транзакций по дате.
+def test_filter_by_state_with_custom_state() -> None:
+    transactions: List[Dict[str, Any]] = [
+        {'state': 'EXECUTED', 'amount': 100},
+        {'state': 'PENDING', 'amount': 200},
+        {'state': 'CANCELED', 'amount': 300},
+    ]
 
-    Args:
-        transactions: Список словарей с транзакциями
-        descending: Если True - сортировка по убыванию (новые сверху), если False - по возрастанию
+    result = filter_by_state(transactions, state='PENDING')
+    assert len(result) == 1
+    assert result[0]['state'] == 'PENDING'
 
-    Returns:
-        Отсортированный список транзакций
-    """
 
-    def parse_date(transaction: Dict[str, Any]) -> datetime:
-        """Извлекает и парсит дату из транзакции"""
-        date_str = transaction.get('date', '')
+def test_filter_by_state_empty_list() -> None:
+    assert filter_by_state([]) == []
 
-        if not date_str:
-            return datetime.min
 
-        # Удаляем 'Z' в конце, если есть (UTC метка)
-        if isinstance(date_str, str) and date_str.endswith('Z'):
-            date_str = date_str[:-1]
+def test_sort_by_date_descending() -> None:
+    transactions: List[Dict[str, Any]] = [
+        {'date': '2023-01-15T10:30:00', 'amount': 100},
+        {'date': '2023-01-20T10:30:00', 'amount': 200},
+        {'date': '2023-01-10T10:30:00', 'amount': 300},
+    ]
 
-        # Пробуем разные форматы дат
-        formats = [
-            '%Y-%m-%dT%H:%M:%S.%f',  # с микросекундами
-            '%Y-%m-%dT%H:%M:%S',  # без микросекунд (ваш случай!)
-            '%Y-%m-%d %H:%M:%S.%f',  # с пробелом и микросекундами
-            '%Y-%m-%d %H:%M:%S',  # с пробелом без микросекунд
-            '%Y-%m-%d',  # только дата
-        ]
+    result = sort_by_date(transactions, descending=True)
+    assert result[0]['date'] == '2023-01-20T10:30:00'
+    assert result[1]['date'] == '2023-01-15T10:30:00'
+    assert result[2]['date'] == '2023-01-10T10:30:00'
 
-        for fmt in formats:
-            try:
-                return datetime.strptime(date_str, fmt)
-            except (ValueError, TypeError):
-                continue
 
-        # Если ни один формат не подошел, вызываем ошибку
-        raise ValueError(f"Не удалось распарсить дату: {date_str}")
+def test_sort_by_date_ascending() -> None:
+    transactions: List[Dict[str, Any]] = [
+        {'date': '2023-01-15T10:30:00', 'amount': 100},
+        {'date': '2023-01-20T10:30:00', 'amount': 200},
+        {'date': '2023-01-10T10:30:00', 'amount': 300},
+    ]
 
-    return sorted(transactions, key=parse_date, reverse=descending)
+    result = sort_by_date(transactions, descending=False)
+    assert result[0]['date'] == '2023-01-10T10:30:00'
+    assert result[1]['date'] == '2023-01-15T10:30:00'
+    assert result[2]['date'] == '2023-01-20T10:30:00'
+
+
+def test_sort_by_date_with_missing_date() -> None:
+    transactions: List[Dict[str, Any]] = [
+        {'amount': 100},  # без даты
+        {'date': '2023-01-20T10:30:00', 'amount': 200},
+        {'date': '2023-01-10T10:30:00', 'amount': 300},
+    ]
+
+    result = sort_by_date(transactions, descending=True)
+    # Транзакции без даты должны быть в конце
+    assert result[-1].get('date') is None
