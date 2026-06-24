@@ -1,77 +1,93 @@
+# src/widget.py
 from datetime import datetime
-
 from src.masks import get_mask_account, get_mask_card_number
 
-card_examples = [
-    "Visa Platinum 7000792289606361",
-    "Maestro 7000792289606361",
-    "Счет 73654108430135874305"
-]
 
-
-def mask_account_card(card: str) -> str:
+def mask_account_card(card_info: str) -> str:
     """
-       Маскирует номер банковской карты или счета в зависимости от типа.
+    Маскирует номер карты или счета
 
-       Функция принимает строку с типом карты/счета и номером,
-       разделенными пробелом, и возвращает строку с замаскированным номером.
-       Для карт и счетов используются разные типы маскировки.
+    Args:
+        card_info: Строка с типом и номером
 
-       Параметры:
-       input_string (str): входная строка с типом и номером карты/счета
-           Допустимые форматы:
-           - "Visa Platinum 7000792289606361"
-           - "Maestro 7000792289606361"
-           - "Счет 73654108430135874305"
+    Returns:
+        Замаскированная строка
 
-       Возвращает:
-       str: строка с замаскированным номером карты/счета
+    Raises:
+        ValueError: Если формат входной строки некорректный
+    """
+    # Проверяем на пустую строку или только пробелы
+    if not card_info or not card_info.strip():
+        raise ValueError("Invalid card format")
 
-       Примеры использования:
-       >>> mask_account_card("Visa Platinum 7000792289606361")
-       'Visa Platinum XXXX XXXX XXXX 6361'
+    # Разбиваем строку на части
+    parts = card_info.split()
 
-       >>> mask_account_card("Maestro 7000792289606361")
-       'Maestro XXXX XXXX XXXX 6361'
+    # Проверяем, что есть хотя бы тип и номер
+    if len(parts) < 2:
+        raise ValueError("Invalid card format")
 
-       >>> mask_account_card("Счет 73654108430135874305")
-       'Счет XXXX XXXX XXXX 3015'
+    # Проверяем, что последняя часть - это номер (состоит только из цифр)
+    number = parts[-1]
+    if not number.isdigit():
+        raise ValueError("Invalid card format")
 
-       Исключения:
-       ValueError: если входная строка имеет неверный формат
-       """
-    list_card = card.split()
-    number_card = list_card[-1]
-    str_card = list_card[0:-1]
-    if card.startswith("Счет"):
-        result = get_mask_account(number_card)
+    # Определяем тип карты/счета (все части кроме последней)
+    card_type = " ".join(parts[:-1])
+
+    # Если номер длинный (20 цифр) или в типе есть "Счет" - это счет
+    if len(number) == 20 or "Счет" in card_type:
+        return f"{card_type} {get_mask_account(number)}"
     else:
-        result = get_mask_card_number(str(number_card))
-    return " ".join(str_card) + " " + result
+        return f"{card_type} {get_mask_card_number(number)}"
 
 
 def get_date(date_string: str) -> str:
     """
-    Преобразует строку с датой из технического формата в читаемый (DD.MM.YYYY).
+    Преобразует дату из ISO формата в формат ДД.ММ.ГГГГ
 
-    Параметры:
-        date_string (str): Дата в формате ISO (например, "2024-03-11T02:26:18.671407")
+    Args:
+        date_string: Строка с датой в ISO формате
 
-    Возвращает:
-        str: Дата в формате DD.MM.YYYY (например, "11.03.2024")
+    Returns:
+        Строка с датой в формате ДД.ММ.ГГГГ
 
-    Примеры:
-        >>> get_date("2024-03-11T02:26:18.671407")
-        '11.03.2024'
+    Raises:
+        ValueError: Если формат даты некорректный
     """
-    # Парсинг строки даты в объект datetime (автоматически обрабатывает ISO-формат)
-    dt = datetime.fromisoformat(date_string.replace('Z', '+00:00'))
+    if not date_string or not date_string.strip():
+        raise ValueError("Invalid date format")
 
-    # Форматируем дату в нужный вид (DD.MM.YYYY)
-    formatted_date = dt.strftime('%d.%m.%Y')
+    # Очищаем строку от временной зоны и лишних символов
+    clean_date = date_string.strip()
 
-    return formatted_date
+    # Удаляем Z в конце
+    if clean_date.endswith('Z'):
+        clean_date = clean_date[:-1]
 
+    # Удаляем часовой пояс (+03:00, -05:00 и т.д.)
+    if '+' in clean_date:
+        clean_date = clean_date.split('+')[0]
+    elif '-' in clean_date and clean_date.count('-') > 2:
+        # Проверяем, что это часовой пояс (формат -05:00)
+        parts = clean_date.rsplit('-', 1)
+        if len(parts) == 2 and len(parts[1]) in [2, 5, 6]:  # -05, -05:00, -05:00:00
+            clean_date = parts[0]
 
-for card in card_examples:
-    print(mask_account_card(card))
+    # Пробуем разные форматы - сначала без микросекунд, потом с ними
+    formats = [
+        '%Y-%m-%dT%H:%M:%S',  # без микросекунд (ВАЖНО: сначала этот формат!)
+        '%Y-%m-%dT%H:%M:%S.%f',  # с микросекундами
+        '%Y-%m-%d %H:%M:%S',  # с пробелом без микросекунд
+        '%Y-%m-%d %H:%M:%S.%f',  # с пробелом и микросекундами
+        '%Y-%m-%d',  # только дата
+    ]
+
+    for fmt in formats:
+        try:
+            date_obj = datetime.strptime(clean_date, fmt)
+            return date_obj.strftime('%d.%m.%Y')
+        except (ValueError, TypeError):
+            continue
+
+    raise ValueError("Invalid date format")

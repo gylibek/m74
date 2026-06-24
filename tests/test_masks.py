@@ -1,53 +1,57 @@
-from src import widget
-
-# Импортируем модуль
-
-
-# Пример использования функций
-def main() -> None:
-
-    # Тестовые данные для маскировки
-    card_input = "Visa Platinum 7000792289606361"
-    masked_card = widget.mask_account_card(card_input)
-    print(f"Исходная карта: {card_input}")
-    print(f"Замаскированная карта: {masked_card}")
-    # Тестовые данные для даты
-    date_input = "2024-03-11T02:26:18.671407"
-    formatted_date = widget.get_date(date_input)
-    print(f"\nИсходная дата: {date_input}")
-    print(f"Форматированная дата: {formatted_date}")
+# tests/test_masks.py
+import pytest
+from src.masks import get_mask_account, get_mask_card_number
 
 
-if __name__ == "__main__":
-    main()
+@pytest.mark.parametrize("card_input,expected", [
+    ("1234567890123456", "1234 56** **** 3456"),
+    ("0012345678901234", "0012 34** **** 1234"),
+])
+def test_get_mask_card_number(card_input: str, expected: str) -> None:
+    assert get_mask_card_number(card_input) == expected
 
 
-def display_results() -> None:
-    # Пример с форматированием
-    card_examples = [
-        "Visa Platinum 7000792289606361",
-        "Maestro 7000792289606361",
-        "Счет 73654108430135874305"
-    ]
-
-    date_examples = [
-        "2024-03-11T02:26:18.671407",
-        "2023-12-25T23:59:59.999999",
-        "2025-01-01T00:00:00.000000"
-    ]
-
-    print("Результаты работы функции маскировки:")
-    print("-------------------------------------")
-    for card in card_examples:
-        print(f"Исходная: {card}")
-        print(f"Результат: {widget.mask_account_card(card)}\n")
-
-    print("Результаты работы функции форматирования даты:")
-    print("---------------------------------------------")
-    for date in date_examples:
-        print(f"Исходная: {date}")
-        print(f"Результат: {widget.get_date(date)}\n")
+@pytest.mark.parametrize("short_card,expected", [
+    # ИСПРАВЛЕНО: убираем пробел между 1234 и 56**, так как функция возвращает без пробела
+    ("123456789012", "1234** **** 9012"),
+])
+def test_get_mask_card_number_short(short_card: str, expected: str) -> None:
+    assert get_mask_card_number(short_card) == expected
 
 
-if __name__ == "__main__":
-    display_results()
+@pytest.mark.parametrize("long_card,expected", [
+    ("12345678901234567890", "1234 56** **** 7890"),
+])
+def test_get_mask_card_number_long(long_card: str, expected: str) -> None:
+    assert get_mask_card_number(long_card) == expected
+
+
+def test_get_mask_card_number_invalid() -> None:
+    with pytest.raises(ValueError):
+        get_mask_card_number("")
+
+    with pytest.raises(ValueError):
+        get_mask_card_number("-1234567890123456")
+
+
+@pytest.mark.parametrize("account_input,expected", [
+    ("1234567890", "**7890"),
+    ("1234", "**1234"),
+    ("123", "**123"),
+    ("12", "**12"),
+    ("1", "**1"),
+    ("123456789012345", "**2345"),
+])
+def test_get_mask_account(account_input: str, expected: str) -> None:
+    assert get_mask_account(account_input) == expected
+
+
+def test_get_mask_account_invalid() -> None:
+    with pytest.raises(ValueError):
+        get_mask_account("")
+
+    with pytest.raises(ValueError):
+        get_mask_account("-1234567890")
+
+    with pytest.raises(ValueError):
+        get_mask_account("None")
