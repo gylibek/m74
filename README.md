@@ -136,3 +136,30 @@ print(sorted_transactions)
 * номер ровно из 4 цифр;
 * пустая строка и `None` (ожидается исключение);
 * отрицательный номер счёта (ожидается `ValueError`).
+
+### generators
+Модуль содержит функции-генераторы для эффективной работы с большими объемами данных транзакций.
+
+#### filter_by_currency(transactions, currency_code)
+Фильтрует транзакции по заданной валюте.
+
+**Аргументы:**
+- `transactions` (List[Dict]): Список словарей с транзакциями
+- `currency_code` (str): Код валюты для фильтрации (например, "USD")
+
+**Возвращает:**
+- Итератор с транзакциями в указанной валюте
+
+**Пример использования:**
+```python
+from generators import filter_by_currency
+
+transactions = [
+    {"operationAmount": {"currency": {"code": "USD"}}, "description": "Payment 1"},
+    {"operationAmount": {"currency": {"code": "EUR"}}, "description": "Payment 2"}
+]
+
+usd_transactions = filter_by_currency(transactions, "USD")
+for transaction in usd_transactions:
+    print(transaction["description"])
+# Output: Payment 1
