@@ -64,12 +64,7 @@ def transaction_descriptions(transactions: list[Dict[str, Any]]) -> Generator[st
         Generator[str] – генератор строк с описанием. Если описание отсутствует,
                          выдаётся строка "Описание отсутствует".
 
-    Пример:
-        >>> transactions = [{"description": "Оплата"}, {"description": None}]
-        >>> for desc in transaction_descriptions(transactions):
-        ...     print(desc)
-        Оплата
-        Описание отсутствует
+
     """
     for transaction in transactions:
         # Извлекаем значение по ключу "description"
