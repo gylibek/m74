@@ -1,87 +1,147 @@
-from typing import Iterator, List, Dict, Any
+"""
+Модуль generators.py
+
+Содержит три функции-генератора для работы с банковскими транзакциями:
+1. filter_by_currency – фильтрует транзакции по коду валюты.
+2. transaction_descriptions – извлекает описания транзакций.
+3. card_number_generator – генерирует номера карт в заданном диапазоне.
+
+Все функции возвращают итераторы (используют yield), что позволяет
+экономить память при работе с большими объёмами данных.
+"""
+
+from typing import Iterator, Dict, Any, Generator
 
 
-def filter_by_currency(transactions: List[Dict[str, Any]], currency_code: str) -> Iterator[Dict[str, Any]]:
+# ======================================================================
+# 1. Функция-фильтр по валюте
+# ======================================================================
+def filter_by_currency(transactions: list[Dict[str, Any]], currency_code: str) -> Iterator[Dict[str, Any]]:
     """
-    Фильтрует транзакции по заданной валюте.
+    Генератор, который выдаёт только те транзакции, у которых код валюты
+    совпадает с заданным.
 
-    Args:
-        transactions: Список словарей с транзакциями
-        currency_code: Код валюты для фильтрации (например, "USD")
+    Параметры:
+        transactions (list[dict]) – список словарей с данными о транзакциях.
+        currency_code (str) – код валюты для фильтрации (например, 'USD').
 
-    Returns:
-        Итератор, выдающий транзакции с указанной валютой
+    Возвращает:
+        Iterator[dict] – итератор, поочерёдно выдающий подходящие транзакции.
 
-    Example:
-        >>> transactions = [
-        ...     {"operationAmount": {"currency": {"code": "USD"}}, "description": "Payment 1"},
-        ...     {"operationAmount": {"currency": {"code": "EUR"}}, "description": "Payment 2"}
-        ... ]
-        >>> usd_transactions = filter_by_currency(transactions, "USD")
-        >>> next(usd_transactions)["description"]
-        'Payment 1'
+    Пример:
+        >>> transactions = [{"operationAmount": {"currency": {"code": "USD"}}}, ...]
+        >>> usd = filter_by_currency(transactions, "USD")
+        >>> for t in usd:
+        ...     print(t)
     """
     for transaction in transactions:
+        # Безопасно пытаемся получить код валюты
         try:
-            if transaction.get("operationAmount", {}).get("currency", {}).get("code") == currency_code:
+            # Обращаемся по цепочке ключей operationAmount -> currency -> code
+            op_amount = transaction.get("operationAmount", {})
+            currency = op_amount.get("currency", {})
+            code = currency.get("code")
+            # Если код совпадает с искомым – возвращаем транзакцию
+            if code == currency_code:
                 yield transaction
         except (AttributeError, TypeError):
+            # Если структура транзакции не соответствует ожидаемой,
+            # просто пропускаем её (не прерываем работу генератора)
             continue
 
 
-def transaction_descriptions(transactions: List[Dict[str, Any]]) -> Iterator[str]:
+# ======================================================================
+# 2. Генератор описаний транзакций
+# ======================================================================
+def transaction_descriptions(transactions: list[Dict[str, Any]]) -> Generator[str, None, None]:
     """
-    Генератор описаний транзакций.
+    Генератор, который возвращает описание каждой транзакции из списка.
 
-    Args:
-        transactions: Список словарей с транзакциями
+    Параметры:
+        transactions (list[dict]) – список словарей с транзакциями.
 
-    Returns:
-        Итератор с описаниями каждой транзакции
+    Возвращает:
+        Generator[str] – генератор строк с описанием. Если описание отсутствует,
+                         выдаётся строка "Описание отсутствует".
 
-    Example:
-        >>> transactions = [
-        ...     {"description": "Перевод организации"},
-        ...     {"description": "Перевод со счета на счет"}
-        ... ]
-        >>> descriptions = transaction_descriptions(transactions)
-        >>> next(descriptions)
-        'Перевод организации'
+    Пример:
+        >>> transactions = [{"description": "Оплата"}, {"description": None}]
+        >>> for desc in transaction_descriptions(transactions):
+        ...     print(desc)
+        Оплата
+        Описание отсутствует
     """
     for transaction in transactions:
-        try:
-            yield transaction.get("description", "")
-        except (AttributeError, TypeError):
-            yield ""
+        # Извлекаем значение по ключу "description"
+        description = transaction.get("description")
+        # Если ключа нет или значение равно None – подставляем заглушку
+        if description is None:
+            description = "Описание отсутствует"
+        yield description
 
 
-def card_number_generator(start: int, stop: int) -> Iterator[str]:
+# ======================================================================
+# 3. Генератор номеров банковских карт
+# ======================================================================
+def card_number_generator(start: int, stop: int) -> Generator[str, None, None]:
     """
-    Генератор номеров банковских карт в формате XXXX XXXX XXXX XXXX.
+    Генератор номеров банковских карт в заданном диапазоне.
 
-    Args:
-        start: Начальное значение диапазона (включительно)
-        stop: Конечное значение диапазона (включительно)
+    Параметры:
+        start (int) – начальное число диапазона (включительно).
+        stop (int) – конечное число диапазона (включительно).
 
-    Returns:
-        Итератор с номерами карт в формате XXXX XXXX XXXX XXXX
+    Возвращает:
+        Generator[str] – генератор строк с номерами карт в формате
+                         "XXXX XXXX XXXX XXXX". Каждый номер состоит из 16 цифр,
+                         дополненных ведущими нулями при необходимости.
 
-    Example:
-        >>> for card_number in card_number_generator(1, 3):
-        ...     print(card_number)
+    Пример:
+        >>> for card in card_number_generator(1, 3):
+        ...     print(card)
         0000 0000 0000 0001
         0000 0000 0000 0002
         0000 0000 0000 0003
-
-    Raises:
-        ValueError: Если start или stop выходят за допустимый диапазон [1, 9999999999999999]
     """
-    if not (1 <= start <= 9999999999999999 and 1 <= stop <= 9999999999999999):
-        raise ValueError("Номера карт должны быть в диапазоне от 1 до 9999999999999999")
-
-    if start > stop:
-        raise ValueError("Начальное значение не может быть больше конечного")
-
     for number in range(start, stop + 1):
-        formatted = f"{number:016d}"
-        yield f"{formatted[:4]} {formatted[4:8]} {formatted[8:12]} {formatted[12:16]}"
+        # Форматируем число как 16-значную строку с ведущими нулями
+        card_str = f"{number:016d}"
+        # Разбиваем на группы по 4 цифры и соединяем пробелами
+        formatted = f"{card_str[:4]} {card_str[4:8]} {card_str[8:12]} {card_str[12:]}"
+        yield formatted
+
+
+# ======================================================================
+# Небольшой тест при запуске файла как самостоятельного скрипта
+# ======================================================================
+if __name__ == "__main__":
+    # Пример использования (можно удалить или закомментировать)
+    sample_transactions = [
+        {
+            "id": 1,
+            "description": "Перевод другу",
+            "operationAmount": {"amount": "150.00", "currency": {"code": "USD"}}
+        },
+        {
+            "id": 2,
+            "description": "Покупка в магазине",
+            "operationAmount": {"amount": "75.50", "currency": {"code": "EUR"}}
+        },
+        {
+            "id": 3,
+            "description": "Пополнение счета",
+            "operationAmount": {"amount": "1000.00", "currency": {"code": "RUB"}}
+        }
+    ]
+
+    print("=== filter_by_currency (USD) ===")
+    for t in filter_by_currency(sample_transactions, "USD"):
+        print(f"ID {t['id']}: {t['description']}")
+
+    print("\n=== transaction_descriptions ===")
+    for desc in transaction_descriptions(sample_transactions):
+        print(desc)
+
+    print("\n=== card_number_generator (от 1 до 5) ===")
+    for card in card_number_generator(1, 5):
+        print(card)
