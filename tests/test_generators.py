@@ -12,13 +12,13 @@ for path in [project_root, src_path]:
 # Импортируем функции (пробуем разные варианты)
 try:
     from generators import filter_by_currency, transaction_descriptions, card_number_generator
-    print("✅ Импорт из generators (корень)")
+    print(" Импорт из generators (корень)")
 except ImportError:
     try:
         from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
-        print("✅ Импорт из src.generators")
+        print(" Импорт из src.generators")
     except ImportError as e:
-        print("❌ Не найден модуль generators ни в корне, ни в src")
+        print(" Не найден модуль generators ни в корне, ни в src")
         print(f"   Путь к тесту: {current_dir}")
         print(f"   Корень проекта: {project_root}")
         print(f"   Папка src: {src_path}")
