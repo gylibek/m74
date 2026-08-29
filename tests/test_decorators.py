@@ -1,7 +1,7 @@
 # test_decorators.py
 import pytest
 import os
-from decorators.py import log
+from src.decorators import log
 
 
 # Тестируемая функция
