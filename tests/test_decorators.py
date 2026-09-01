@@ -1,31 +1,34 @@
 # test_decorators.py
-import pytest
 import os
+
+import pytest
+from _pytest.capture import CaptureFixture
+
 from src.decorators import log
 
 
 # Тестируемая функция
 @log()
-def add(a, b):
+def add(a: int, b: int) -> int:
     return a + b
 
 
 @log()
-def div(a, b):
+def div(a: float, b: float) -> float:
     return a / b
 
 
 @log(filename="test.log")
-def multiply(a, b):
+def multiply(a: int, b: int) -> int:
     return a * b
 
 
 @log(filename="test.log")
-def failing_func(x):
+def failing_func(x: int) -> None:
     raise ValueError("Invalid value")
 
 
-def test_log_console_success(capsys):
+def test_log_console_success(capsys: CaptureFixture[str]) -> None:
     """Тест успешного вызова с выводом в консоль."""
     result = add(2, 3)
     assert result == 5
@@ -35,7 +38,7 @@ def test_log_console_success(capsys):
     assert "add returned 5" in out
 
 
-def test_log_console_exception(capsys):
+def test_log_console_exception(capsys: CaptureFixture[str]) -> None:
     """Тест вызова с исключением, логи в консоль."""
     with pytest.raises(ZeroDivisionError):
         div(5, 0)
@@ -46,26 +49,23 @@ def test_log_console_exception(capsys):
     assert "args: 5, 0" in out
 
 
-def test_log_file_success():
+def test_log_file_success() -> None:
     """Тест успешного вызова с записью в файл."""
-    # Удаляем файл перед тестом, если существует
     if os.path.exists("test.log"):
         os.remove("test.log")
 
     result = multiply(4, 5)
     assert result == 20
 
-    # Проверяем содержимое файла
     with open("test.log", "r", encoding="utf-8") as f:
         content = f.read()
     assert "Calling multiply(4, 5)" in content
     assert "multiply returned 20" in content
 
-    # Очистка после теста
     os.remove("test.log")
 
 
-def test_log_file_exception():
+def test_log_file_exception() -> None:
     """Тест вызова с исключением, запись в файл."""
     if os.path.exists("test.log"):
         os.remove("test.log")
@@ -82,10 +82,10 @@ def test_log_file_exception():
     os.remove("test.log")
 
 
-def test_log_with_kwargs(capsys):
+def test_log_with_kwargs(capsys: CaptureFixture[str]) -> None:
     """Тест с именованными аргументами."""
     @log()
-    def greet(name, greeting="Hello"):
+    def greet(name: str, greeting: str = "Hello") -> str:
         return f"{greeting}, {name}!"
 
     result = greet("Alice", greeting="Hi")

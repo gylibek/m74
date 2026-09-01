@@ -1,35 +1,24 @@
 import functools
 import logging
 import time
-from typing import Optional, Callable, Any
+from typing import Any, Callable, Optional
 
 
 def log(filename: Optional[str] = None) -> Callable:
+
     """
     Декоратор для логирования вызовов функций.
-
-    Логирует время начала и окончания вызова, переданные аргументы,
-    результат выполнения или информацию об ошибке.
-
-    Args:
-        filename (Optional[str]): Имя файла для записи логов.
-            Если не указано, логи выводятся в консоль.
-
-    Returns:
-        Callable: Обёрнутая функция.
     """
-
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            # Настройка логгера
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             logger = logging.getLogger(func.__name__)
             logger.setLevel(logging.INFO)
 
-            # Удаляем предыдущие обработчики, чтобы не дублировать
             if logger.handlers:
                 logger.handlers.clear()
 
+            handler: logging.Handler
             if filename:
                 handler = logging.FileHandler(filename, encoding='utf-8')
             else:
@@ -39,7 +28,6 @@ def log(filename: Optional[str] = None) -> Callable:
             handler.setFormatter(formatter)
             logger.addHandler(handler)
 
-            # Логируем начало вызова
             start_time = time.time()
             args_repr = ', '.join([repr(a) for a in args])
             kwargs_repr = ', '.join([f"{k}={repr(v)}" for k, v in kwargs.items()])
@@ -58,7 +46,7 @@ def log(filename: Optional[str] = None) -> Callable:
                     f"(args: {args_repr}, kwargs: {kwargs_repr}) "
                     f"after {end_time - start_time:.4f} sec"
                 )
-                raise  # пробрасываем исключение дальше
+                raise
 
         return wrapper
 
