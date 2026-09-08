@@ -61,3 +61,7 @@ venv/
 
 # mypy
 .mypy_cache/
+
+# .gitignore
+.env
+test.log
