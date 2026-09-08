@@ -1,10 +1,10 @@
-# src/external_api.py
 import os
+from typing import Any, Dict
+
 import requests
 from dotenv import load_dotenv
-from typing import Dict, Any
 
-load_dotenv()  # загружаем переменные из .env
+load_dotenv()
 
 API_KEY = os.getenv("EXCHANGE_RATES_API_KEY")
 BASE_URL = "https://api.apilayer.com/exchangerates_data/convert"
@@ -21,6 +21,9 @@ def convert_currency(transaction: Dict[str, Any]) -> float:
         float: сумма в рублях. Если валюта не USD/EUR, возвращает исходную сумму.
     """
     amount = transaction.get("amount")
+    if amount is None:
+        return 0.0
+
     currency = transaction.get("currency", "RUB").upper()
 
     if currency not in ("USD", "EUR"):
@@ -40,7 +43,7 @@ def convert_currency(transaction: Dict[str, Any]) -> float:
         response = requests.get(BASE_URL, params=params, headers=headers, timeout=5)
         response.raise_for_status()
         data = response.json()
-        return float(data.get("result", amount))
+        result = data.get("result")
+        return float(result) if result is not None else float(amount)
     except (requests.RequestException, KeyError, ValueError):
-        # В случае ошибки возвращаем исходную сумму
         return float(amount)

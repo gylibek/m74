@@ -1,6 +1,6 @@
 # src/utils.py
 import json
-from typing import Any, List, Dict
+from typing import Any, Dict, List
 
 
 def get_transactions(file_path: str) -> List[Dict[str, Any]]:
