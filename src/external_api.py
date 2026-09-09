@@ -11,15 +11,6 @@ BASE_URL = "https://api.apilayer.com/exchangerates_data/convert"
 
 
 def convert_currency(transaction: Dict[str, Any]) -> float:
-    """
-    Конвертирует сумму транзакции в рубли, если валюта USD или EUR.
-
-    Аргументы:
-        transaction (Dict[str, Any]): словарь с ключами 'amount' и 'currency'.
-
-    Возвращает:
-        float: сумма в рублях. Если валюта не USD/EUR, возвращает исходную сумму.
-    """
     amount = transaction.get("amount")
     if amount is None:
         return 0.0
@@ -45,5 +36,5 @@ def convert_currency(transaction: Dict[str, Any]) -> float:
         data = response.json()
         result = data.get("result")
         return float(result) if result is not None else float(amount)
-    except (requests.RequestException, KeyError, ValueError):
+    except Exception:  # перехватываем все исключения
         return float(amount)
