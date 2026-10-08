@@ -44,5 +44,5 @@ exclude = ['venv']
 
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = ">=3.11 "
 pandas = "^3.0.6"

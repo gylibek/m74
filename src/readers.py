@@ -30,7 +30,7 @@ def read_transactions_excel(file_path: str) -> list[dict[str, Any]]:
         file_path: Путь к файлу Excel (.xlsx) с транзакциями.
 
     Returns:
-        Список словарей, где каждый словарь — одна финансовая операция.
+        Список словарей,  где каждый словарь — одна финaнсовая операция.
     """
     dataframe = pd.read_excel(file_path)
     records = dataframe.to_dict(orient="records")

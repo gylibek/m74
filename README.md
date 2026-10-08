@@ -88,7 +88,7 @@ python -m pytest --cov=src --cov-fail-under=80 tests/
 ---
 
 
-## Новая функция
+## Новaя функция
 
 Добавлен модуль `src/readers.py` для чтения финансовых операций:
 
