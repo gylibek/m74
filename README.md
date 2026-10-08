@@ -86,3 +86,21 @@ python -m pytest --cov=src --cov-fail-under=80 tests/
 ```
 
 ---
+
+
+## Новая функция
+
+Добавлен модуль `src/readers.py` для чтения финансовых операций:
+
+- `read_transactions_csv(file_path)` — читает транзакции из CSV-файла
+  и возвращает список словарей.
+- `read_transactions_excel(file_path)` — читает транзакции из Excel-файла
+  и возвращает список словарей.
+
+### Пример использования
+
+```python
+from src.readers import read_transactions_csv, read_transactions_excel
+
+csv_data = read_transactions_csv("data/transactions.csv")
+xlsx_data = read_transactions_excel("data/transactions.xlsx")
