@@ -104,3 +104,27 @@ from src.readers import read_transactions_csv, read_transactions_excel
 
 csv_data = read_transactions_csv("data/transactions.csv")
 xlsx_data = read_transactions_excel("data/transactions.xlsx")
+
+## Новая функциональность (regex + подсчёт категорий)
+
+### `src/processing.py`
+
+- `process_bank_search(data, search)` — ищет транзакции по описанию
+  через библиотеку `re` (без учёта регистра, поддерживает регулярные
+  выражения).
+- `process_bank_operations(data, categories)` — считает количество
+  операций по каждой категории из списка с использованием
+  `collections.Counter`.
+
+### `src/readers.py`
+
+- добавлена функция `read_transactions_json(file_path)`.
+
+### `src/main.py`
+
+CLI-приложение: выбор источника (JSON/CSV/XLSX) → фильтр по статусу
+(с приведением регистра и повторным запросом при ошибке) → сортировка
+по дате → фильтр по валюте RUB → поиск по слову в описании → вывод
+списка. Если выборка пуста — выводится сообщение
+«Не найдено ни одной транзакции, подходящей под ваши условия
+фильтрации».
